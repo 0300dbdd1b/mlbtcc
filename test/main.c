@@ -2,8 +2,8 @@
 
 int main(void)
 {
-	Indexer("/Volumes/LaCie/Bitcoin/BitcoinCore/");
-	Block b = GetBlock(1);
+	IndexCoreDatadir("/Volumes/LaCie/Bitcoin/BitcoinCore/");
+	Block b = GetBlock(0);
 	PrintBlock(&b, stdout);
 }
 

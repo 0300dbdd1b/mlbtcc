@@ -1,6 +1,6 @@
 #include "include/bitcoin-structs.h"
 #include "extern/sha256/sha256.h"
-#include "mlbtcc.h"
+#include "include/mlbtcc-internals.h"
 
 #include <stdint.h>
 #include <stdio.h>

@@ -1,5 +1,6 @@
 #include "include/bitcoin-structs.h"
 #include "include/leveldb.h"
+#include "include/mlbtcc-internals.h"
 #include "mlbtcc.h"
 
 #include <stdint.h>
@@ -160,7 +161,7 @@ void SortFiles(FileList *fileList)
 }
 
 
-void Indexer(char *path)
+void IndexCoreDatadir(char *path)
 {
 	char datadir[MAX_PATH_LENGTH];
 	char currentDirectory[MAX_PATH_LENGTH];

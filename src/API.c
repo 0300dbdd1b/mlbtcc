@@ -4,12 +4,10 @@
 #include <time.h>
 
 
-Block ReadBlkDatFile(FileInfo *fileInfo, size_t offset);
-
 Block GetBlock(int height)
 {
 	Block block;
-	block = ReadBlkDatFile(&gBlkFiles.files[gIndexRecords.blockIndexRecord[height].blockFile], gIndexRecords.blockIndexRecord[height].blockOffset);
+	block = ReadBlockFromBlkDatFile(&gBlkFiles.files[gIndexRecords.blockIndexRecord[height].blockFile], gIndexRecords.blockIndexRecord[height].blockOffset);
 	block.height = height;
 	return block;
 }

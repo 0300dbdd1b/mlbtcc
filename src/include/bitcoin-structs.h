@@ -5,7 +5,6 @@
 #include <stdio.h>
 #include <stddef.h>
 
-#define SECONDS_PER_DAY 60 * 60 * 24
 
 typedef uint8_t		U8;
 typedef uint16_t	U16;

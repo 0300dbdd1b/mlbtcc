@@ -1274,7 +1274,7 @@ void LinkFilesNULL(const char *pattern, const char *outputBinary, const char *li
 	#define DYNAMIC_EXECNAME	"./mlbtcc.dylib"
 	#define CC			DEFAULT_COMPILER
 	#define LD			"gcc"
-	#define CFLAGS		"-std=c11 -Wall -Wextra -Werror -pedantic-errors -I src/include/leveldb.h -I src/include"
+	#define CFLAGS		"-std=c11 -Wall -Wextra -Werror -pedantic-errors -I src/include/"
 	#define LDFLAGS		"-Wl,-rpath,/usr/local/lib -lleveldb"
 
 	#define DEBUG_CFLAGS	"-fsanitize=address -g3"

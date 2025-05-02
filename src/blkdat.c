@@ -1,4 +1,5 @@
 #include "include/bitcoin-structs.h"
+#include "include/mlbtcc-internals.h"
 #include "mlbtcc.h"
 
 #include <stdint.h>
@@ -193,7 +194,7 @@ FILE* OpenFile(FileInfo *fileInfo)
 	return fileInfo->file;
 }
 
-Block ReadBlkDatFile(FileInfo *fileInfo, size_t offset)
+Block ReadBlockFromBlkDatFile(FileInfo *fileInfo, size_t offset)
 {
 	Block block;
 	U8 *blockBuffer;
