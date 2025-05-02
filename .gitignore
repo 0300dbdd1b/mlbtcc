@@ -1,0 +1,9 @@
+*.a
+*.dylib
+*.so
+*.o
+build/
+CBuilder
+compile_commands.json
+a.out
+src/extern/leveldb-1.22/build/
