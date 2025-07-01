@@ -122,8 +122,6 @@ Transaction *ReadTxn(const U8 *blockBuffer, U16 txCount)
 	return transactions;
 }
 
-
-
 void CloseLRUFile(void)
 {
 	size_t lruIndex = 0;

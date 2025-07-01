@@ -1,8 +1,13 @@
+#include "include/bitcoin-structs.h"
 #include "include/mlbtcc-internals.h"
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
 
+
+#ifndef MAX_BLOCK_BUFFER_MEMORY
+#	define MAX_BLOCK_BUFFER_MEMORY 4 * Mib
+#endif
 
 Block GetBlock(int height)
 {
@@ -12,11 +17,10 @@ Block GetBlock(int height)
 	return block;
 }
 
-
-// WARN: UNSAFE FUNCTION -- can bloat memory
-// FIXME: Add some sort of assertion in case the count is too high
 Blocks GetBlocks(int height, int count)
 {
+	if (count > (int)(MAX_BLOCK_BUFFER_MEMORY / Mib))
+		return (Blocks){0};
 	Blocks blocks;
 	blocks.count = 0;
 	blocks.blocks = malloc(sizeof(Block) * count);
@@ -61,16 +65,23 @@ Block	GetLastBlockOfDate(U32 timestamp)
 	return (Block){0};
 }
 
-BlockStats	GetBlockStats(int height)
+BlockStats	GetBlockStats(Block *block)
 {
 	BlockStats stats;
-	Block block		= GetBlock(height);
 	memset(&stats, 0, sizeof(Block));
-	stats.height	= height;
-	for (int i = 0; i < block.txCount; i++)
+	stats.height	= block->height;
+	stats.time		= block->header.time;
+	memcpy(stats.blockHash, block->hash, sizeof(stats.blockHash));
+	for (int i = 0; i < block->txCount; i++)
 	{
-		stats.ins += block.transactions[i].inputCount;
-		stats.outs += block.transactions[i].outputCount;
+		Transaction tx = block->transactions[i];
+		stats.ins	+= tx.inputCount;
+		stats.outs	+= tx.outputCount;
+		stats.totalSize += tx.size;
+		for (int j = 0; j < tx.outputCount; j++)
+		{
+			stats.totalOut += tx.outputs[j].amount;
+		}
 	}
 
 	return (stats);

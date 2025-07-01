@@ -5,6 +5,15 @@
 #include <stdio.h>
 #include <stddef.h>
 
+#define Kb  (1000ULL)
+#define Mb  (1000ULL * Kb)
+#define Gb  (1000ULL * Mb)
+#define Tb  (1000ULL * Gb)
+
+#define Kib (1024ULL)
+#define Mib (1024ULL * Kib)
+#define Gib (1024ULL * Mib)
+#define Tib (1024ULL * Gib)
 
 typedef uint8_t		U8;
 typedef uint16_t	U16;
@@ -374,6 +383,16 @@ typedef struct BlockIndexRecord
 	U64 undoOffset;					// 8 bytes - where the block is located in rev.dat
 } BlockIndexRecord;					// 174 bytes
 
+// WARN: Might want to rename
+// FIXME: Find code reference
+typedef struct CoinRecord
+{
+	U8	txid[32];
+	int	height;
+	U8	coinbase;
+	int dummy;
+}	CoinRecord;
+
 typedef struct FileInformationRecord
 {
 	U64 filenumber;					// 8 bytes - file number
@@ -404,12 +423,17 @@ typedef struct ChainstateIndex
 
 typedef struct IndexRecords
 {
-	BlockIndexRecord *blockIndexRecord;
-	U64 blockIndexRecordCount;
-	FileInformationRecord *fileInformationRecord;
-	U64 fileInformationRecordCount;
-	TxIndex *txIndexRecord;
-	U64 txIndexRecordCount;
+	BlockIndexRecord		*blockIndexRecord;
+	U64 					blockIndexRecordCount;
+
+	FileInformationRecord	*fileInformationRecord;
+	U64						fileInformationRecordCount;
+
+	TxIndex					*txIndexRecord;
+	U64						txIndexRecordCount;
+
+	CoinRecord				*coinRecord;
+	U64						coinRecordCount;
 } IndexRecords;
 
 

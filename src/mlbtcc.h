@@ -27,7 +27,4 @@ void PrintBlock(const Block *block, FILE *output);
 void PrintBlocks(const Blocks blocks, FILE *output);
 void PrintBlockIndexRecord(const BlockIndexRecord *record);
 
-
-
-
 #endif

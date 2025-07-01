@@ -49,9 +49,9 @@ void sha256_transform(SHA256_CTX *ctx, const BYTE data[])
 		/* m[i] = (data[j] << 24) | (data[j + 1] << 16) | (data[j + 2] << 8) | (data[j + 3]); */
 	{
 		m[i] = ((WORD)data[j] << 24);
-		m[i] = ((WORD)data[j+1] << 16);
-		m[i] = ((WORD)data[j+2] << 8);
-		m[i] = ((WORD)data[j+3]);
+		m[i] |= ((WORD)data[j+1] << 16);
+		m[i] |= ((WORD)data[j+2] << 8);
+		m[i] |= ((WORD)data[j+3]);
 	}
 	for ( ; i < 64; ++i)
 		m[i] = SIG1(m[i - 2]) + m[i - 7] + SIG0(m[i - 15]) + m[i - 16];
@@ -161,4 +161,18 @@ void sha256_final(SHA256_CTX *ctx, BYTE hash[])
 		hash[i + 24] = (ctx->state[6] >> (24 - i * 8)) & 0x000000ff;
 		hash[i + 28] = (ctx->state[7] >> (24 - i * 8)) & 0x000000ff;
 	}
+}
+
+void sha256(const BYTE data[], size_t len, BYTE hash[])
+{
+	SHA256_CTX ctx;
+	sha256_init(&ctx);
+	sha256_update(&ctx, data, len);
+	sha256_final(&ctx, hash);
+}
+
+void sha256d(const BYTE data[], size_t len, BYTE hash[])
+{
+	sha256(data, len, hash);
+	sha256(hash, 32, hash);
 }

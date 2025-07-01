@@ -4,6 +4,7 @@
 #include "mlbtcc.h"
 
 #include <stdint.h>
+#include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -73,12 +74,11 @@ uint8_t GetIsDatabaseReindexing(const char *value, size_t valLen)
 	return 0;
 }
 
-
-IndexRecords BuildIndexRecords(char *directory)
+// NOTE: directory must be the datadir/blocks/ directory
+void BuildBlockIndexRecords(char *directory)
 {
-	IndexRecords			indexRecords;
-	indexRecords.blockIndexRecordCount = 0;
-	indexRecords.fileInformationRecordCount = 0;
+	gIndexRecords.blockIndexRecordCount = 0;
+	gIndexRecords.fileInformationRecordCount = 0;
 
 	/* uint32_t				lastBlockFileNumber; */
 	/* uint8_t					isReindexing; */
@@ -94,8 +94,8 @@ IndexRecords BuildIndexRecords(char *directory)
 	(void)count;
 	LDB_Instance instance = LDB_InitOpen(directory);
 	LDB_CountEntriesForPrefixes(instance, "bf", 2, counts);
-	indexRecords.blockIndexRecord = malloc(sizeof(BlockIndexRecord) * counts[0]);
-	indexRecords.fileInformationRecord = malloc(sizeof(FileInformationRecord) * counts[1]);
+	gIndexRecords.blockIndexRecord = malloc(sizeof(BlockIndexRecord) * counts[0]);
+	gIndexRecords.fileInformationRecord = malloc(sizeof(FileInformationRecord) * counts[1]);
 	
 	LDB_Iterator *iterator = LDB_CreateIterator(instance.db, instance.roptions);
 	for (LDB_IterSeekToFirst(iterator); LDB_IterValid(iterator); LDB_IterNext(iterator))
@@ -105,15 +105,15 @@ IndexRecords BuildIndexRecords(char *directory)
 		if (key[0] == 'b')
 		{
 			BlockIndexRecord blockIndexRecord = GetBlockIndexRecord(key, keyLen, value, valLen);
-			indexRecords.blockIndexRecord[blockIndexRecord.height] = blockIndexRecord;
-			indexRecords.blockIndexRecordCount++;
+			gIndexRecords.blockIndexRecord[blockIndexRecord.height] = blockIndexRecord;
+			gIndexRecords.blockIndexRecordCount++;
 		}
 	  	else if (key[0] == 'f')
 		{
 			FileInformationRecord fileInformationRecord = GetFileInformationRecord(key, keyLen, value, valLen);
 			(void)fileInformationRecord;
 			//  BUG: indexRecords.fileInformationRecord[fileInformationRecord.filenumber] = fileInformationRecord;
-			indexRecords.fileInformationRecordCount++;
+			gIndexRecords.fileInformationRecordCount++;
 		}
 	  	else if (key[0] == 'l')
 		{
@@ -127,7 +127,6 @@ IndexRecords BuildIndexRecords(char *directory)
 	}
 	LDB_IterDestroy(iterator);
 	LDB_Close(instance.db);
-	return indexRecords;
 }
 
 
@@ -161,6 +160,64 @@ void SortFiles(FileList *fileList)
 }
 
 
+CoinRecord GetCoinRecord(const char *key, size_t keyLen, const char *value, size_t valLen)
+{
+    CoinRecord cr = {0};
+    size_t offset = 0;
+	(void)keyLen;
+	(void)valLen;
+    // --- decode key: 0x43 ('C') || 32-byte TXID (little endian in DB)
+    memcpy(cr.txid, key + 1, SHA256_HASH_SIZE);
+    // flip to big-endian
+    ReverseString(cr.txid, SHA256_HASH_SIZE);
+
+    // --- decode header code
+    uint64_t code = 0;
+    offset += DecodeVarint128(value + offset, &code);
+    cr.height   = (int32_t)(code >> 1);
+    cr.coinbase = (code & 1);
+    uint64_t nUnspent = 0;
+    offset += DecodeVarint128(value + offset, &nUnspent);
+    return cr;
+}
+void BuildCoinRecords(char *directory)
+{
+	gIndexRecords.coinRecordCount = 0;
+
+	/* uint32_t				lastBlockFileNumber; */
+	/* uint8_t					isReindexing; */
+
+	const char *			key;
+	const char *			value;
+
+	size_t keyLen;
+	size_t valLen;
+
+	size_t counts[2];
+	int		count = 0;
+	(void)count;
+	LDB_Instance instance = LDB_InitOpen(directory);
+	LDB_CountEntriesForPrefixes(instance, "CB", 2, counts);
+	gIndexRecords.coinRecord = malloc(sizeof(CoinRecord) * counts[0]);
+	
+	LDB_Iterator *iterator = LDB_CreateIterator(instance.db, instance.roptions);
+	for (LDB_IterSeekToFirst(iterator); LDB_IterValid(iterator); LDB_IterNext(iterator))
+	{
+		key = LDB_IterKey(iterator, &keyLen);
+		value = LDB_IterValue(iterator, &valLen);
+		if (key[0] == 'C')
+		{
+			CoinRecord coinRecord = GetCoinRecord(key, keyLen, value, valLen);
+			gIndexRecords.coinRecord[gIndexRecords.coinRecordCount] = coinRecord;
+			gIndexRecords.coinRecordCount++;
+		}
+		count++;
+	}
+	LDB_IterDestroy(iterator);
+	LDB_Close(instance.db);
+}
+
+
 void IndexCoreDatadir(char *path)
 {
 	char datadir[MAX_PATH_LENGTH];
@@ -170,8 +227,6 @@ void IndexCoreDatadir(char *path)
 	char chainstateDir[MAX_PATH_LENGTH];
 	char coinstatsDir[MAX_PATH_LENGTH];
 	char txIndexDir[MAX_PATH_LENGTH];
-
-	char tmpBlkIndexesDir[MAX_PATH_LENGTH];
 
 	memcpy(datadir, path, strlen(path) + 1);
 	printf("%s\n", datadir);
@@ -191,14 +246,10 @@ void IndexCoreDatadir(char *path)
     snprintf(coinstatsDir, sizeof(coinstatsDir), "%sindexes/coinstats/", datadir);
     snprintf(txIndexDir, sizeof(txIndexDir), "%sindexes/txindex/", datadir);
 
-	// WARN: Double Warn , beacuse one is not enough
-	snprintf(tmpBlkIndexesDir, sizeof(tmpBlkIndexesDir), "%stmp", currentDirectory);
-
 	//NOTE: We can make a better estimate of the number of blk.dat files 4k is dumb.
 	gBlkFiles = ListFiles(blkDatDir, "blk*.dat", 4000);		//NOTE: Init Global Variables -- Array of blk.dat FileInfo
 	SortFiles(&gBlkFiles);									//NOTE: We sort that array so that array[0] == blk00000.dat
-	CopyDirectory(blkIndexesDir, tmpBlkIndexesDir);
-	gIndexRecords = BuildIndexRecords(tmpBlkIndexesDir);	//NOTE: Init Global Variables -- IndexRecords
-	DeleteDirectory(tmpBlkIndexesDir);
+	BuildBlockIndexRecords(blkIndexesDir);					//NOTE: Init Global Variables -- IndexRecords.BlockIndexRecord
+	// BuildCoinRecords(chainstateDir);
 }
 

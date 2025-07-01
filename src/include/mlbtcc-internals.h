@@ -17,7 +17,8 @@ BlockIndexRecord		GetBlockIndexRecord(const char *key, size_t keyLen, const char
 FileInformationRecord	GetFileInformationRecord(const char *key, size_t keyLen, const char *value, size_t valLen);
 uint32_t				GetLastBlockFileNumberUsed(const char *value, size_t valLen);
 uint8_t					GetIsDatabaseReindexing(const char *value, size_t valLen);
-IndexRecords			BuildIndexRecords(char *directory);
+void					BuildBlockIndexRecords(char *directory);
+void					BuildCoinRecords(char *directory);
 int						ExtractBlockNumber(const char *filename);
 int						CompareFileInfo(const void *a, const void *b);
 void					SortFiles(FileList *fileList);
