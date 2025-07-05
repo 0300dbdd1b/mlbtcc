@@ -47,6 +47,15 @@ void FreeBlock(Block *block)
 	}
 }
 
+void FreeBlocks(Blocks *blocks)
+{
+	for (U16 i = 0; i < blocks->count; i++)
+	{
+		FreeBlock(&blocks->blocks[i]);
+	}
+}
+
+
 void FreeFileList(FileList *fileList)
 {
     for (size_t i = 0; i < fileList->count; i++)

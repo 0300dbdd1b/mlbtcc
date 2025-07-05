@@ -17,6 +17,7 @@ Block		GetLastBlockOfDate(U32 timestamp);
 BlockStats	GetBlockStats(int height);
 
 void FreeBlock(Block *block);
+void FreeBlocks(Blocks *blocks);
 
 void PrintBlockHeader(const BlockHeader *header, FILE *output);
 void PrintInput(const Input *input, FILE *output);
