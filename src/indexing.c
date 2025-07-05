@@ -218,6 +218,22 @@ void BuildCoinRecords(char *directory)
 }
 
 
+int IsBitcoindRunning(void)
+{
+	FILE *fp = popen("ps -A | grep '[b]itcoind'", "r");
+	if (!fp) return 0;
+
+	char buffer[256];
+	int found = 0;
+
+	if (fgets(buffer, sizeof(buffer), fp) != NULL)
+		found = 1;
+
+	pclose(fp);
+	return found;
+}
+
+
 void IndexCoreDatadir(char *path)
 {
 	char datadir[MAX_PATH_LENGTH];
@@ -246,10 +262,22 @@ void IndexCoreDatadir(char *path)
     snprintf(coinstatsDir, sizeof(coinstatsDir), "%sindexes/coinstats/", datadir);
     snprintf(txIndexDir, sizeof(txIndexDir), "%sindexes/txindex/", datadir);
 
+
 	//NOTE: We can make a better estimate of the number of blk.dat files 4k is dumb.
 	gBlkFiles = ListFiles(blkDatDir, "blk*.dat", 4000);		//NOTE: Init Global Variables -- Array of blk.dat FileInfo
 	SortFiles(&gBlkFiles);									//NOTE: We sort that array so that array[0] == blk00000.dat
-	BuildBlockIndexRecords(blkIndexesDir);					//NOTE: Init Global Variables -- IndexRecords.BlockIndexRecord
+	printf("Bitcoin running %d\n", IsBitcoindRunning());
+	if (!IsBitcoindRunning())
+	{
+		BuildBlockIndexRecords(blkIndexesDir);					//NOTE: Init Global Variables -- IndexRecords.BlockIndexRecord
+	}
+	else
+	{
+		char tmpBlkIndexesDir[MAX_PATH_LENGTH] = "/tmp/block-index";
+		CopyDirectory(blkIndexesDir, tmpBlkIndexesDir);
+		BuildBlockIndexRecords(tmpBlkIndexesDir);
+		DeleteDirectory(tmpBlkIndexesDir);
+	}
 	// BuildCoinRecords(chainstateDir);
 }
 

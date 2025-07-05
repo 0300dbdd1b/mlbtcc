@@ -39,8 +39,6 @@ void PrintBlock(const Block *block, FILE *output);
 void PrintBlocks(const Blocks blocks, FILE *output);
 void PrintBlockIndexRecord(const BlockIndexRecord *record);
 
-
-
 void InitBlockHeader(BlockHeader *header);
 void InitInput(Input *input);
 void InitOutput(Output *output);

@@ -7,7 +7,6 @@
 
 #include <stdio.h>
 
-
 void		IndexCoreDatadir(char *datadir);
 
 Block		GetBlock(int height);
