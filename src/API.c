@@ -19,15 +19,17 @@ Block GetBlock(int height)
 
 Blocks GetBlocks(int height, int count)
 {
-	if (count > (int)(MAX_BLOCK_BUFFER_MEMORY / Mib))
+	if ((count * MAX_BLOCK_BUFFER_MEMORY) > MAX_LIB_MEMORY)
+	{
+		printf("Error Getting blocks\n");
 		return (Blocks){0};
+	}
 	Blocks blocks;
-	blocks.count = 0;
+	blocks.count = count;
 	blocks.blocks = malloc(sizeof(Block) * count);
 	for (int i = 0; i < count; i++)
 	{
 		blocks.blocks[i] = GetBlock(height + i);
-		blocks.count++;
 	}
 	return blocks;
 }

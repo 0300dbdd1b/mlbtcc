@@ -6,6 +6,7 @@
 extern FileList		gBlkFiles;
 extern IndexRecords	gIndexRecords;
 
+#define MAX_LIB_MEMORY	4 * Gib
 #define MAX_PATH_LENGTH 512
 #define SECONDS_PER_DAY 60 * 60 * 24
 
