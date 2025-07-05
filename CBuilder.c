@@ -1344,6 +1344,10 @@ void	BuildStatic(int ac, char **av)
 	char ldflags[256];
 	strcpy(cflags, CFLAGS);
 	strcpy(ldflags, LDFLAGS);
+	if (HasArg(ac, av, "release"))
+	{
+		strcat(cflags, " -O3");
+	}
 	if (HasArg(ac, av, "debug"))
 	{
 		strcat(cflags,	" -fsanitize=address,undefined");
@@ -1362,6 +1366,10 @@ void	BuildDynamic(int ac, char **av)
 	char ldflags[256];
 	strcpy(cflags, CFLAGS);
 	strcpy(ldflags, LDFLAGS);
+	if (HasArg(ac, av, "release"))
+	{
+		strcat(cflags, " -O3");
+	}
 	if (HasArg(ac, av, "debug"))
 	{
 		strcat(cflags,	" -fsanitize=address,undefined");
