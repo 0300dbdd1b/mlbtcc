@@ -20,6 +20,12 @@ typedef uint16_t	U16;
 typedef uint32_t	U32;
 typedef uint64_t	U64;
 
+typedef int8_t		S8;
+typedef int16_t		S16;
+typedef int32_t		S32;
+typedef int64_t		S64;
+
+
 #define BLOCK_0_TIMESTAMP 1231006505		// 03 Jan 2009, 18:15:05
 #define BLOCK_0_HASH 0x000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f
 

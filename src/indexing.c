@@ -9,8 +9,6 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-FileList gBlkFiles;
-IndexRecords gIndexRecords;
 
 void PrintBlockIndexRecord(const BlockIndexRecord *record);
 
@@ -77,6 +75,7 @@ uint8_t GetIsDatabaseReindexing(const char *value, size_t valLen)
 // NOTE: directory must be the datadir/blocks/ directory
 void BuildBlockIndexRecords(char *directory)
 {
+	IndexRecords gIndexRecords = gEnv.indexRecords;
 	gIndexRecords.blockIndexRecordCount = 0;
 	gIndexRecords.fileInformationRecordCount = 0;
 
@@ -127,6 +126,7 @@ void BuildBlockIndexRecords(char *directory)
 	}
 	LDB_IterDestroy(iterator);
 	LDB_Close(instance.db);
+	gEnv.indexRecords = gIndexRecords;
 }
 
 
@@ -180,8 +180,10 @@ CoinRecord GetCoinRecord(const char *key, size_t keyLen, const char *value, size
     offset += DecodeVarint128(value + offset, &nUnspent);
     return cr;
 }
+
 void BuildCoinRecords(char *directory)
 {
+	IndexRecords gIndexRecords = gEnv.indexRecords;
 	gIndexRecords.coinRecordCount = 0;
 
 	/* uint32_t				lastBlockFileNumber; */
@@ -234,42 +236,18 @@ int IsBitcoindRunning(void)
 }
 
 
-void IndexCoreDatadir(char *path)
+void IndexCoreDatadir(void)
 {
-	char datadir[MAX_PATH_LENGTH];
-	char currentDirectory[MAX_PATH_LENGTH];
-	char blkDatDir[MAX_PATH_LENGTH];
-	char blkIndexesDir[MAX_PATH_LENGTH];
-	char chainstateDir[MAX_PATH_LENGTH];
-	char coinstatsDir[MAX_PATH_LENGTH];
-	char txIndexDir[MAX_PATH_LENGTH];
-
-	memcpy(datadir, path, strlen(path) + 1);
-	printf("%s\n", datadir);
-	SanitizeDirString(datadir);
-
-	/* if (!IsDirectory(datadir)) */
-	/* 	GetBitcoinDatadir(datadir); */
-	// WARN: This won't work on windows.
-	// INFO: Might want to use something faster than snprintf
-	getcwd(currentDirectory, sizeof(currentDirectory));
-    SanitizeDirString(currentDirectory);
-
-	// WARN: This code is unsafe if datadir is of size MAX_PATH_LENGTH
-	snprintf(blkDatDir, sizeof(blkDatDir), "%sblocks/", datadir);
-    snprintf(blkIndexesDir, sizeof(blkIndexesDir), "%sblocks/index/", datadir);
-    snprintf(chainstateDir, sizeof(chainstateDir), "%schainstate/", datadir);
-    snprintf(coinstatsDir, sizeof(coinstatsDir), "%sindexes/coinstats/", datadir);
-    snprintf(txIndexDir, sizeof(txIndexDir), "%sindexes/txindex/", datadir);
-
-
+	char	blkIndexesDir[MAX_PATH_LENGTH];
+	snprintf(blkIndexesDir, sizeof(blkIndexesDir), "%s/index/", gEnv.blocksDir);
 	//NOTE: We can make a better estimate of the number of blk.dat files 4k is dumb.
-	gBlkFiles = ListFiles(blkDatDir, "blk*.dat", 4000);		//NOTE: Init Global Variables -- Array of blk.dat FileInfo
-	SortFiles(&gBlkFiles);									//NOTE: We sort that array so that array[0] == blk00000.dat
+	gEnv.blkFiles = ListFiles(gEnv.blocksDir, "blk*.dat", 4000);		//NOTE: Init Global Variables -- Array of blk.dat FileInfo
+	SortFiles(&gEnv.blkFiles);									//NOTE: We sort that array so that array[0] == blk00000.dat
 	printf("Bitcoin running %d\n", IsBitcoindRunning());
 	if (!IsBitcoindRunning())
 	{
 		BuildBlockIndexRecords(blkIndexesDir);					//NOTE: Init Global Variables -- IndexRecords.BlockIndexRecord
+		// BuildCoinRecords(chainstateDir);
 	}
 	else
 	{
@@ -278,6 +256,5 @@ void IndexCoreDatadir(char *path)
 		BuildBlockIndexRecords(tmpBlkIndexesDir);
 		DeleteDirectory(tmpBlkIndexesDir);
 	}
-	// BuildCoinRecords(chainstateDir);
 }
 

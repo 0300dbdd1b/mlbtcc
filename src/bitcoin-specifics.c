@@ -8,6 +8,30 @@
 #include <string.h>
 #include <time.h>
 
+U8 HexToBytes(U8 *out, const char *hex)
+{
+	for (int i = 0; i < 32; i++)
+	{
+		char byteStr[3] = {hex[i * 2], hex[i * 2 + 1], '\0'};
+		char *endptr;
+		out[i] = (U8)strtol(byteStr, &endptr, 16);
+		if (*endptr != '\0')
+			return 0;
+	}
+	return 1;
+}
+
+void BytesToHex(const U8 *bytes, size_t length, char *output)
+{
+	const char hexDigits[] = "0123456789abcdef";
+	for (size_t i = 0; i < length; ++i)
+	{
+		output[i * 2]     = hexDigits[(bytes[i] >> 4) & 0x0F];
+		output[i * 2 + 1] = hexDigits[bytes[i] & 0x0F];
+	}
+	output[length * 2] = '\0';  // null terminator
+}
+
 void ReverseString(U8 *str, size_t size)
 {
 	// Swap characters from the two ends towards the middle
@@ -26,8 +50,7 @@ void SHA256(const U8 *data, size_t datasize, U8 *hash)
 	sha256_init(&ctx);
 	sha256_update(&ctx, data, datasize);
 	sha256_final(&ctx, hash);
-	ReverseString(hash, 32);
-}
+	ReverseString(hash, 32); }
 
 void DoubleSHA256(const U8 *data, size_t datasize, U8 *hash)
 {

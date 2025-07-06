@@ -1316,16 +1316,20 @@ void BuildDebugSelf(int argc, char **argv)
 
 void CleanRule(int argc, char **argv)
 {
-#ifdef EXECNAME
-	if (CB_FileExists(EXECNAME))
-		CB_RemoveFile(EXECNAME);
-	if (CB_FileExists(BUILDER_NAME) && HasArg(argc, argv, "all"))
-		CB_RemoveFile(BUILDER_NAME);
+	if (CB_FileExists(STATIC_EXECNAME))
+		CB_RemoveFile(STATIC_EXECNAME);
+	if (CB_FileExists(DYNAMIC_EXECNAME))
+		CB_RemoveFile(DYNAMIC_EXECNAME);
+	if (CB_FileExists("mlbtcc-tests"))
+		CB_RemoveFile("mlbtcc-tests");
 	if (CB_DirectoryExists("build"))
-	{
 		CB_RemoveDirectory("build");
+	if (HasArg(argc, argv, "all"))
+	{
+		if (CB_FileExists(BUILDER_NAME))
+			CB_RemoveFile(BUILDER_NAME);
 	}
-#endif
+
 }
 
 void BuildLevelDB(int ac, char **av)
@@ -1386,9 +1390,13 @@ void BuildRule(int argc, char **argv)
 {
 	BuildLevelDB(argc, argv);
 	if (HasArg(argc, argv, "static") || argc == 0)
+	{
 		BuildStatic(argc, argv);
-	else
+	}
+	else if (HasArg(argc, argv, "dynamic"))
+	{
 		BuildDynamic(argc, argv);
+	}
 	if (HasArg(argc, argv, "no-obj"))
 		CB_RemoveDirectory("build");
 }
@@ -1405,8 +1413,18 @@ void ExecRule(int argc, char **argv)
 
 void BuildTests(int ac, char **av)
 {
-	BuildRule(ac, av);
-	ExecuteCommand(CreateCommand(LD, LDFLAGS, "*.a", "test/*.c"));
+	if (HasArg(ac, av, "debug"))
+	{
+		const char *mlbtcc_args[] = {"static", "debug", "no-obj", "release", NULL};
+		BuildRule(4, (char**)mlbtcc_args);
+		ExecuteCommand(CreateCommand(LD, LDFLAGS, "-fsanitize=address,undefined","*.a", "test/*.c", "-o", "mlbtcc-tests"));
+	}
+	else
+	{
+		const char *mlbtcc_args[] = {"static", "no-obj", "release", NULL};
+		BuildRule(3, (char**)mlbtcc_args);
+		ExecuteCommand(CreateCommand(LD, LDFLAGS, "*.a", "test/*.c", "-o", "mlbtcc-tests"));
+	}
 }
 
 

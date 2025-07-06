@@ -2,13 +2,39 @@
 #define MLBTCC_CONTEXT_H
 
 #include "bitcoin-structs.h"
-
-extern FileList		gBlkFiles;
-extern IndexRecords	gIndexRecords;
-
-#define MAX_LIB_MEMORY	4 * Gib
 #define MAX_PATH_LENGTH 512
 #define SECONDS_PER_DAY 60 * 60 * 24
+
+#define IS_BIT_SET(value, bit) (((value) >> (bit)) & 1)
+#define SET_BIT(value, bit) ((value) |= (1ULL << (bit)))
+#define CLEAR_BIT(value, bit) ((value) &= ~(1ULL << (bit)))
+
+typedef enum MLBTCC_STATUS
+{
+	HAS_DATADIR				= 0,
+	HAS_BLOCK_INDEX_RECORD	= 1 << 0,
+	HAS_CHAINSTATE			= 1 << 1,
+	HAS_INDEXES				= 1 << 2,
+	HAS_TXINDEX				= 1 << 3,
+	HAS_COINSTAT			= 1 << 4,
+} MLBTCC_STATUS;
+
+typedef struct MLBTCC_ENV
+{
+	char			dataDir[MAX_PATH_LENGTH];
+	char			blocksDir[MAX_PATH_LENGTH];
+	char			indexesDir[MAX_PATH_LENGTH];
+	char			chainstateDir[MAX_PATH_LENGTH];
+	MLBTCC_STATUS	status;
+	FileList		blkFiles;
+	IndexRecords	indexRecords;
+} MLBTCC_ENV;
+extern MLBTCC_ENV gEnv;
+
+#ifndef MLBTCC_MAX_MEMORY
+	#define MLBTCC_MAX_MEMORY	4 * Gib
+#endif
+
 
 
 
@@ -79,5 +105,9 @@ void FreeBlock(Block *block);
 void FreeFileList(FileList *fileList);
 
 
+void ParseCoreDatadir(char *path);
 
+Transaction *ReadTxn(const U8 *blockBuffer, U16 txCount);
+U8 HexToBytes(U8 *out, const char *hex);
+void BytesToHex(const U8 *bytes, size_t length, char *output);
 #endif
