@@ -8,6 +8,8 @@
 #include <string.h>
 #include <time.h>
 
+
+
 U8 HexToBytes(U8 *out, const char *hex)
 {
 	for (int i = 0; i < 32; i++)

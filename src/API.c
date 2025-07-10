@@ -16,6 +16,7 @@ Block GetBlock(int height)
 	IndexRecords gIndexRecords	= gEnv.indexRecords;
 	FileList gBlkFiles			= gEnv.blkFiles;
 	Block block;
+
 	block = ReadBlockFromBlkDatFile(&gBlkFiles.files[gIndexRecords.blockIndexRecord[height].blockFile], gIndexRecords.blockIndexRecord[height].blockOffset);
 	block.height = height;
 	return block;

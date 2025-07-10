@@ -197,27 +197,77 @@ Block ReadBlockFromBlkDatFile(FileInfo *fileInfo, size_t offset)
 	Block block;
 	U8 *blockBuffer;
 	U8 blockHeaderBuffer[BLOCKHEADER_SIZE];
-	int 	freadReturn;
-	(void)freadReturn;
+	U8 rawPrefix[8];		// NOTE: magic (4 bytes) + blockSize (4 bytes)
 
 	U16 bufferOffset = BLOCKHEADER_SIZE;
+
 	fileInfo->file = OpenFile(fileInfo);
 	if (fseek(fileInfo->file, offset - 8, SEEK_SET) != 0)
+	{
 		printf("Failed to seek to the offset");
-	freadReturn = fread(&block, sizeof(block.magic) + sizeof(block.blockSize), 1, fileInfo->file);	//NOTE: Read magic bytes and blockSize
+	}
+
+	// Read first 8 bytes (magic + blockSize)
+	if (fread(rawPrefix, 1, 8, fileInfo->file) != 8)
+	{
+		printf("Failed to read block prefix");
+	}
+
+	int isXorActive = 0;
+	for (int i = 0; i < 8; i++)
+	{
+		if (gEnv.xorKey[i])
+		{
+			isXorActive = 1;
+		}
+	}
+	if (isXorActive)	// NOTE: No need to xor against 0x0000000000000000
+	{
+		for (int i = 0; i < 8; i++)
+		{
+			rawPrefix[i] ^= gEnv.xorKey[(offset - 8 + i) % 8];
+		}
+	}
+	memcpy(&block.magic, rawPrefix, 4);
+	memcpy(&block.blockSize, rawPrefix + 4, 4);
+
 	if (offset - 8 + block.blockSize > MAX_BLOCKFILE_SIZE)
+	{
 		printf("Trying to read bytes after the end of the file");
+	}
+
 	blockBuffer = malloc(sizeof(U8) * block.blockSize);
-	if (fread(blockBuffer, sizeof(U8), block.blockSize, fileInfo->file) != block.blockSize)	//NOTE: Read blockSize bytes into a buffer to gather the block data
+	if (!blockBuffer)
+	{
+		fprintf(stderr, "Failed to allocate block buffer\n");
+		exit(1);
+	}
+	if (fread(blockBuffer, 1, block.blockSize, fileInfo->file) != block.blockSize) // WARN: Dont remember why I did put that in there.
+	{
 		printf("Cannot Read.");
+	}
 	if (ferror(fileInfo->file))
+	{
 		printf("Error while reading the file");
-	memcpy(blockHeaderBuffer, blockBuffer, BLOCKHEADER_SIZE);										//NOTE: Copy the header bytes to a buffer
-	block.header = DecodeBlockHeader(blockHeaderBuffer);											//NOTE: Decode the blockheader buffer
-	bufferOffset += CompactSizeDecode(blockBuffer + bufferOffset, MAX_COMPACT_SIZE_BYTES, (uint64_t *)&block.txCount);	//NOTE: Get the number of transactions from the blockBuffer
-	block.transactions = ReadTxn(blockBuffer + bufferOffset, block.txCount);						//NOTE: Get all the block transactions
+	}
+
+	if (isXorActive)	// NOTE: No need to xor against 0x0000000000000000
+	{
+		for (size_t i = 0; i < block.blockSize; i++)
+		{
+			blockBuffer[i] ^= gEnv.xorKey[(offset + i) % 8];
+		}
+	}
+
+	memcpy(blockHeaderBuffer, blockBuffer, BLOCKHEADER_SIZE);
+	block.header = DecodeBlockHeader(blockHeaderBuffer);
+
+	bufferOffset += CompactSizeDecode(blockBuffer + bufferOffset, MAX_COMPACT_SIZE_BYTES, (uint64_t *)&block.txCount);
+	block.transactions = ReadTxn(blockBuffer + bufferOffset, block.txCount);
 
 	DoubleSHA256(blockHeaderBuffer, BLOCKHEADER_SIZE, block.hash);
 	free(blockBuffer);
 	return block;
-}	
+}
+
+	

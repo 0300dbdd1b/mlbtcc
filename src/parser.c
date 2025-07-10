@@ -68,6 +68,30 @@ U8 SearchDefaultDatadirs(char *out)
 	return 0;
 }
 
+
+
+void LoadXorKey(const char *datadir)
+{
+    char path[PATH_MAX];
+    snprintf(path, sizeof(path), "%s/blocks/xor.dat", datadir);
+
+    FILE *f = fopen(path, "rb");
+    if (!f) {
+        perror("Failed to open xor.dat");
+        memset(gEnv.xorKey, 0, 8); // fallback to zero-key
+        return;
+    }
+
+    size_t read = fread(gEnv.xorKey, 1, 8, f);
+    fclose(f);
+
+    if (read != 8) {
+        fprintf(stderr, "Invalid xor.dat file size\n");
+        memset(gEnv.xorKey, 0, 8);
+    }
+}
+
+
 void ParseCoreDatadir(char *path)
 {
 	char datadir[MAX_PATH_LENGTH];
@@ -78,7 +102,7 @@ void ParseCoreDatadir(char *path)
 	}
 	else if (!SearchDefaultDatadirs(datadir))
 	{
-		fprintf(stderr, "❌ Could not find a valid Bitcoin datadir.\n");
+		fprintf(stderr, "[Error]: Could not find a valid Bitcoin datadir.\n");
 		exit(1);
 	}
 
@@ -89,11 +113,16 @@ void ParseCoreDatadir(char *path)
 
 	if (!IsDirectory(gEnv.blocksDir))
 	{
-		fprintf(stderr, "❌ '%s' is missing or invalid.\n", gEnv.blocksDir);
+		fprintf(stderr, "[Error]: '%s' is missing or invalid.\n", gEnv.blocksDir);
 		exit(1);
 	}
 	else
 	{
+		char xooor[17];
+		LoadXorKey(gEnv.dataDir);
+		BytesToHex(gEnv.xorKey, 8, xooor);
+		xooor[16] = '\0';
+		printf("XORKEY: %s\n", xooor);
 		SET_BIT(gEnv.status, HAS_DATADIR);
 		if (IsDirectory(gEnv.indexesDir))
 		{

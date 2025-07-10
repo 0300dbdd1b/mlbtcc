@@ -16,7 +16,7 @@ BlockHeader GetBlockHeader(int height);
 Block		GetFirstBlockOfDate(U32 timestamp);
 Block		GetLastBlockOfDate(U32 timestamp);
 BlockStats	GetBlockStats(int height);
-Blocks GetBlocksOfDay(U32 timestamp);
+Blocks		GetBlocksOfDay(U32 timestamp);
 
 void FreeBlock(Block *block);
 void FreeBlocks(Blocks *blocks);

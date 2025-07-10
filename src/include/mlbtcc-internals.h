@@ -28,6 +28,7 @@ typedef struct MLBTCC_ENV
 	MLBTCC_STATUS	status;
 	FileList		blkFiles;
 	IndexRecords	indexRecords;
+	U8				xorKey[8];
 } MLBTCC_ENV;
 extern MLBTCC_ENV gEnv;
 
@@ -110,4 +111,5 @@ void ParseCoreDatadir(char *path);
 Transaction *ReadTxn(const U8 *blockBuffer, U16 txCount);
 U8 HexToBytes(U8 *out, const char *hex);
 void BytesToHex(const U8 *bytes, size_t length, char *output);
+size_t FReadXor(void *dest, size_t size, size_t count, FILE *file);
 #endif
