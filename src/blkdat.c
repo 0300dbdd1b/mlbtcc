@@ -128,8 +128,10 @@ void CloseLRUFile(void)
 	uint32_t oldestTime = openFiles[0].lastAccessTime;
 
 	// Iterate over open files to find the least recently used (LRU)
-	for (size_t i = 1; i < MAX_OPEN_FILES; i++) {
-		if (openFiles[i].fileInfo != NULL && openFiles[i].lastAccessTime < oldestTime) {
+	for (size_t i = 1; i < MAX_OPEN_FILES; i++) 
+	{
+		if (openFiles[i].fileInfo != NULL && openFiles[i].lastAccessTime < oldestTime)
+		{
 			lruIndex = i;
 			oldestTime = openFiles[i].lastAccessTime;
 		}
@@ -151,7 +153,7 @@ FILE* OpenFile(FileInfo *fileInfo)
 		{
 			if (openFiles[i].fileInfo == fileInfo)
 			{
-				openFiles[i].lastAccessTime = (uint32_t)time(NULL); //WARN: Not portable
+				openFiles[i].lastAccessTime = (U32)time(NULL); // WARN: Not portable
 				return fileInfo->file;  // Return the open file
 			}
 		}
@@ -167,7 +169,9 @@ FILE* OpenFile(FileInfo *fileInfo)
 
 	// If no slots are available, close the least recently used file
 	if (openSlots == 0)
+	{
 		CloseLRUFile();
+	}
 
 	// Actually open the file
 	fileInfo->file = fopen(fileInfo->filepath, "r");
@@ -262,7 +266,7 @@ Block ReadBlockFromBlkDatFile(FileInfo *fileInfo, size_t offset)
 	memcpy(blockHeaderBuffer, blockBuffer, BLOCKHEADER_SIZE);
 	block.header = DecodeBlockHeader(blockHeaderBuffer);
 
-	bufferOffset += CompactSizeDecode(blockBuffer + bufferOffset, MAX_COMPACT_SIZE_BYTES, (uint64_t *)&block.txCount);
+	bufferOffset += CompactSizeDecode(blockBuffer + bufferOffset, MAX_COMPACT_SIZE_BYTES, (U64 *)&block.txCount);
 	block.transactions = ReadTxn(blockBuffer + bufferOffset, block.txCount);
 
 	DoubleSHA256(blockHeaderBuffer, BLOCKHEADER_SIZE, block.hash);
@@ -270,4 +274,3 @@ Block ReadBlockFromBlkDatFile(FileInfo *fileInfo, size_t offset)
 	return block;
 }
 
-	

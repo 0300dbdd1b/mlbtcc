@@ -1,8 +1,8 @@
 #include "mlbtcc.h"
 #include "include/mlbtcc-internals.h"
 #include "string.h"
-MLBTCC_ENV gEnv;
 
+MLBTCC_ENV gEnv;
 
 void InitMLBTCC(const char *path)
 {

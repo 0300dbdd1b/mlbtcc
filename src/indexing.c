@@ -104,13 +104,16 @@ void BuildBlockIndexRecords(char *directory)
 		if (key[0] == 'b')
 		{
 			BlockIndexRecord blockIndexRecord = GetBlockIndexRecord(key, keyLen, value, valLen);
-			gIndexRecords.blockIndexRecord[blockIndexRecord.height] = blockIndexRecord;
-			gIndexRecords.blockIndexRecordCount++;
+			if ((blockIndexRecord.validationStatus & BLOCK_VALID_MASK) >= BLOCK_VALID_CHAIN)
+			{
+				gIndexRecords.blockIndexRecord[blockIndexRecord.height] = blockIndexRecord;
+				gIndexRecords.blockIndexRecordCount++;
+			}
 		}
 	  	else if (key[0] == 'f')
 		{
 			FileInformationRecord fileInformationRecord = GetFileInformationRecord(key, keyLen, value, valLen);
-			(void)fileInformationRecord;
+			(void)fileInformationRecord;	// INFO: Silencing compiler
 			//  BUG: indexRecords.fileInformationRecord[fileInformationRecord.filenumber] = fileInformationRecord;
 			gIndexRecords.fileInformationRecordCount++;
 		}

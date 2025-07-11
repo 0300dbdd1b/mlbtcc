@@ -1,12 +1,12 @@
 #if 0
-OS="$(uname -s 2>/dev/null || echo Windows)"
-DIR="$(cd "$(dirname "$0")" && pwd)"
-CBUILDER="$DIR/CBuilder"
+	OS="$(uname -s 2>/dev/null || echo Windows)"
+	DIR="$(cd "$(dirname "$0")" && pwd)"
+	CBUILDER="$DIR/CBuilder"
 
-if [ "$OS" = "Linux" ] || [ "$OS" = "Darwin" ]; then
-    cc "$DIR/CBuilder.c" -o "$CBUILDER" && "$CBUILDER"
-fi
-exit
+	if [ "$OS" = "Linux" ] || [ "$OS" = "Darwin" ]; then
+	    cc "$DIR/CBuilder.c" -o "$CBUILDER" && "$CBUILDER"
+	fi
+	exit
 #endif
 
 
@@ -1277,6 +1277,8 @@ void LinkFilesNULL(const char *pattern, const char *outputBinary, const char *li
 	#define CFLAGS		"-std=c11 -Wall -Wextra -Werror -pedantic-errors -I src/include/"
 	#define LDFLAGS		"-Wl,-rpath,/usr/local/lib -lleveldb"
 
+	#define OPTI_CFLAGS	" -O3 -march=native -mtune=native -flto"
+
 	#define DEBUG_CFLAGS	"-fsanitize=address -g3"
 	#define DEBUG_LDGLAGS	""
 
@@ -1350,7 +1352,7 @@ void	BuildStatic(int ac, char **av)
 	strcpy(ldflags, LDFLAGS);
 	if (HasArg(ac, av, "release"))
 	{
-		strcat(cflags, " -O3");
+		strcat(cflags, OPTI_CFLAGS);
 	}
 	if (HasArg(ac, av, "debug"))
 	{
@@ -1372,7 +1374,7 @@ void	BuildDynamic(int ac, char **av)
 	strcpy(ldflags, LDFLAGS);
 	if (HasArg(ac, av, "release"))
 	{
-		strcat(cflags, " -O3");
+		strcat(cflags, OPTI_CFLAGS);
 	}
 	if (HasArg(ac, av, "debug"))
 	{
@@ -1403,19 +1405,17 @@ void BuildRule(int argc, char **argv)
 
 void ExecRule(int argc, char **argv)
 {
-#ifdef EXECNAME
-	Command *execCommand = CreateCommand();
-	AppendToCommand(execCommand, EXECNAME);
-	AppendStringsToCommand(execCommand, argv, argc);
-	ExecuteCommand(execCommand);
-#endif
+	if (FileExists("./mlbtcc-tests"))
+	{
+		ExecuteCommand(CreateCommand("./mlbtcc-tests"));
+	}
 }
 
 void BuildTests(int ac, char **av)
 {
 	if (HasArg(ac, av, "debug"))
 	{
-		const char *mlbtcc_args[] = {"static", "debug", "no-obj", "release", NULL};
+		const char *mlbtcc_args[] = {"static", "debug", "no-obj", NULL};
 		BuildRule(4, (char**)mlbtcc_args);
 		ExecuteCommand(CreateCommand(LD, LDFLAGS, "-fsanitize=address,undefined","*.a", "test/*.c", "-o", "mlbtcc-tests"));
 	}

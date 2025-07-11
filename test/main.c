@@ -7,7 +7,6 @@ Transaction GetTransactionFromTxId(const char *hexTxid);
 #include <stdint.h>
 #include <time.h>
 
-// Millisecond timer
 uint64_t GetTimeMs(void)
 {
 	struct timespec ts;
@@ -15,7 +14,6 @@ uint64_t GetTimeMs(void)
 	return (uint64_t)(ts.tv_sec * 1000ULL + ts.tv_nsec / 1000000ULL);
 }
 
-// CPU cycle counter
 static inline uint64_t ReadTSC(void)
 {
 	unsigned int lo, hi;

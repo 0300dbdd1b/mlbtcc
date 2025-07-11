@@ -29,4 +29,13 @@ void PrintBlock(const Block *block, FILE *output);
 void PrintBlocks(const Blocks blocks, FILE *output);
 void PrintBlockIndexRecord(const BlockIndexRecord *record);
 
+#define ForEachTransaction(blockPtr, txVar) \
+    for (size_t _i = 0, _n = (blockPtr)->txCount; _i < _n && ((txVar) = &(blockPtr)->transactions[_i]); ++_i)
+
+#define ForEachInput(txPtr, inVar) \
+    for (size_t _j = 0, _m = (txPtr)->inputCount; _j < _m && ((inVar) = &(txPtr)->inputs[_j]); ++_j)
+
+#define ForEachOutput(txPtr, outVar) \
+    for (size_t _k = 0, _p = (txPtr)->outputCount; _k < _p && ((outVar) = &(txPtr)->outputs[_k]); ++_k)
+
 #endif

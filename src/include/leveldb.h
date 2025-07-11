@@ -84,57 +84,57 @@
 #define LDB_WriteBatchAppend   leveldb_writebatch_append
 
 /* Options */
-#define LDB_OptionsCreate                     leveldb_options_create
-#define LDB_OptionsDestroy                    leveldb_options_destroy
-#define LDB_OptionsSetComparator              leveldb_options_set_comparator
-#define LDB_OptionsSetFilterPolicy            leveldb_options_set_filter_policy
-#define LDB_OptionsSetCreateIfMissing         leveldb_options_set_create_if_missing
-#define LDB_OptionsSetErrorIfExists           leveldb_options_set_error_if_exists
-#define LDB_OptionsSetParanoidChecks          leveldb_options_set_paranoid_checks
-#define LDB_OptionsSetEnv                     leveldb_options_set_env
-#define LDB_OptionsSetInfoLog                 leveldb_options_set_info_log
-#define LDB_OptionsSetWriteBufferSize         leveldb_options_set_write_buffer_size
-#define LDB_OptionsSetMaxOpenFiles            leveldb_options_set_max_open_files
-#define LDB_OptionsSetCache                   leveldb_options_set_cache
-#define LDB_OptionsSetBlockSize               leveldb_options_set_block_size
-#define LDB_OptionsSetBlockRestartInterval    leveldb_options_set_block_restart_interval
-#define LDB_OptionsSetMaxFileSize             leveldb_options_set_max_file_size
-#define LDB_OptionsSetCompression             leveldb_options_set_compression
+#define LDB_OptionsCreate					leveldb_options_create
+#define LDB_OptionsDestroy					leveldb_options_destroy
+#define LDB_OptionsSetComparator			leveldb_options_set_comparator
+#define LDB_OptionsSetFilterPolicy			leveldb_options_set_filter_policy
+#define LDB_OptionsSetCreateIfMissing		leveldb_options_set_create_if_missing
+#define LDB_OptionsSetErrorIfExists			leveldb_options_set_error_if_exists
+#define LDB_OptionsSetParanoidChecks		leveldb_options_set_paranoid_checks
+#define LDB_OptionsSetEnv					leveldb_options_set_env
+#define LDB_OptionsSetInfoLog				leveldb_options_set_info_log
+#define LDB_OptionsSetWriteBufferSize		leveldb_options_set_write_buffer_size
+#define LDB_OptionsSetMaxOpenFiles			leveldb_options_set_max_open_files
+#define LDB_OptionsSetCache					leveldb_options_set_cache
+#define LDB_OptionsSetBlockSize				leveldb_options_set_block_size
+#define LDB_OptionsSetBlockRestartInterval	leveldb_options_set_block_restart_interval
+#define LDB_OptionsSetMaxFileSize			leveldb_options_set_max_file_size
+#define LDB_OptionsSetCompression			leveldb_options_set_compression
 
 /* Comparator */
-#define LDB_ComparatorCreate  leveldb_comparator_create
-#define LDB_ComparatorDestroy leveldb_comparator_destroy
+#define LDB_ComparatorCreate				leveldb_comparator_create
+#define LDB_ComparatorDestroy				leveldb_comparator_destroy
 
 /* Filter policy */
-#define LDB_FilterPolicyCreate        leveldb_filterpolicy_create
-#define LDB_FilterPolicyDestroy       leveldb_filterpolicy_destroy
-#define LDB_FilterPolicyCreateBloom   leveldb_filterpolicy_create_bloom
+#define LDB_FilterPolicyCreate				leveldb_filterpolicy_create
+#define LDB_FilterPolicyDestroy				leveldb_filterpolicy_destroy
+#define LDB_FilterPolicyCreateBloom			leveldb_filterpolicy_create_bloom
 
 /* Read options */
-#define LDB_ReadOptionsCreate               leveldb_readoptions_create
-#define LDB_ReadOptionsDestroy              leveldb_readoptions_destroy
-#define LDB_ReadOptionsSetVerifyChecksums   leveldb_readoptions_set_verify_checksums
-#define LDB_ReadOptionsSetFillCache         leveldb_readoptions_set_fill_cache
-#define LDB_ReadOptionsSetSnapshot          leveldb_readoptions_set_snapshot
+#define LDB_ReadOptionsCreate				leveldb_readoptions_create
+#define LDB_ReadOptionsDestroy				leveldb_readoptions_destroy
+#define LDB_ReadOptionsSetVerifyChecksums	leveldb_readoptions_set_verify_checksums
+#define LDB_ReadOptionsSetFillCache			leveldb_readoptions_set_fill_cache
+#define LDB_ReadOptionsSetSnapshot			leveldb_readoptions_set_snapshot
 
 /* Write options */
-#define LDB_WriteOptionsCreate   leveldb_writeoptions_create
-#define LDB_WriteOptionsDestroy  leveldb_writeoptions_destroy
-#define LDB_WriteOptionsSetSync  leveldb_writeoptions_set_sync
+#define LDB_WriteOptionsCreate		leveldb_writeoptions_create
+#define LDB_WriteOptionsDestroy		leveldb_writeoptions_destroy
+#define LDB_WriteOptionsSetSync		leveldb_writeoptions_set_sync
 
 /* Cache */
-#define LDB_CacheCreateLRU   leveldb_cache_create_lru
-#define LDB_CacheDestroy     leveldb_cache_destroy
+#define LDB_CacheCreateLRU			leveldb_cache_create_lru
+#define LDB_CacheDestroy			leveldb_cache_destroy
 
 /* Env */
-#define LDB_CreateDefaultEnv        leveldb_create_default_env
-#define LDB_EnvDestroy              leveldb_env_destroy
-#define LDB_EnvGetTestDirectory     leveldb_env_get_test_directory
+#define LDB_CreateDefaultEnv		leveldb_create_default_env
+#define LDB_EnvDestroy				leveldb_env_destroy
+#define LDB_EnvGetTestDirectory		leveldb_env_get_test_directory
 
 /* Utility */
-#define LDB_Free                 leveldb_free
-#define LDB_MajorVersion         leveldb_major_version
-#define LDB_MinorVersion         leveldb_minor_version
+#define LDB_Free					leveldb_free
+#define LDB_MajorVersion			leveldb_major_version
+#define LDB_MinorVersion			leveldb_minor_version
 
 typedef struct LDB_Instance
 {
