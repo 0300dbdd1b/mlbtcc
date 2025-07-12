@@ -244,12 +244,12 @@ void IndexCoreDatadir(void)
 	char	blkIndexesDir[MAX_PATH_LENGTH];
 	snprintf(blkIndexesDir, sizeof(blkIndexesDir), "%s/index/", gEnv.blocksDir);
 	//NOTE: We can make a better estimate of the number of blk.dat files 4k is dumb.
-	gEnv.blkFiles = ListFiles(gEnv.blocksDir, "blk*.dat", 4000);		//NOTE: Init Global Variables -- Array of blk.dat FileInfo
-	SortFiles(&gEnv.blkFiles);									//NOTE: We sort that array so that array[0] == blk00000.dat
+	gEnv.blkFiles = ListFiles(gEnv.blocksDir, "blk*.dat", 5000);		// NOTE: Init Global Variables -- Array of blk.dat FileInfo
+	SortFiles(&gEnv.blkFiles);											// NOTE: We sort that array so that array[0] == blk00000.dat
 	printf("Bitcoin running %d\n", IsBitcoindRunning());
 	if (!IsBitcoindRunning())
 	{
-		BuildBlockIndexRecords(blkIndexesDir);					//NOTE: Init Global Variables -- IndexRecords.BlockIndexRecord
+		BuildBlockIndexRecords(blkIndexesDir);							// NOTE: Init Global Variables -- IndexRecords.BlockIndexRecord
 		// BuildCoinRecords(chainstateDir);
 	}
 	else

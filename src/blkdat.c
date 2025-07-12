@@ -50,7 +50,7 @@ Transaction *ReadTxn(const U8 *blockBuffer, U16 txCount)
 			transaction.flag = 0;
 			isSegwit = 0;
 		}
-		bufferOffset += CompactSizeDecode(blockBuffer + bufferOffset, MAX_COMPACT_SIZE_BYTES, (uint64_t *)&transaction.inputCount);
+		bufferOffset += CompactSizeDecode(blockBuffer + bufferOffset, MAX_COMPACT_SIZE_BYTES, (U64 *)&transaction.inputCount);
 		transaction.inputs = (Input *)malloc(sizeof(Input) * transaction.inputCount);
 
 		for (U16 inputIndex = 0; inputIndex < transaction.inputCount; inputIndex++)
@@ -59,7 +59,7 @@ Transaction *ReadTxn(const U8 *blockBuffer, U16 txCount)
 
 			memcpy(&input, blockBuffer + bufferOffset, SHA256_HASH_SIZE + sizeof(input.vout));								//NOTE: Get the input TXID and VOUT
 			bufferOffset += SHA256_HASH_SIZE + sizeof(input.vout);
-			bufferOffset += CompactSizeDecode(blockBuffer + bufferOffset, MAX_COMPACT_SIZE_BYTES, (uint64_t *)&input.scriptSigSize);	//NOTE: Get the ScriptSig Size
+			bufferOffset += CompactSizeDecode(blockBuffer + bufferOffset, MAX_COMPACT_SIZE_BYTES, (U64 *)&input.scriptSigSize);	//NOTE: Get the ScriptSig Size
 
 			input.scriptSig = (U8 *)malloc(sizeof(U8) * input.scriptSigSize);
 
@@ -70,7 +70,7 @@ Transaction *ReadTxn(const U8 *blockBuffer, U16 txCount)
 			transaction.inputs[inputIndex] = input;
 		}
 
-		bufferOffset += CompactSizeDecode(blockBuffer + bufferOffset, MAX_COMPACT_SIZE_BYTES, (uint64_t *)&transaction.outputCount);
+		bufferOffset += CompactSizeDecode(blockBuffer + bufferOffset, MAX_COMPACT_SIZE_BYTES, (U64 *)&transaction.outputCount);
 		transaction.outputs = (Output *)malloc(sizeof(Output) * transaction.outputCount);
 		for (U16 outputIndex = 0; outputIndex < transaction.outputCount; outputIndex++)
 		{
@@ -78,7 +78,7 @@ Transaction *ReadTxn(const U8 *blockBuffer, U16 txCount)
 
 			memcpy(&output.amount, blockBuffer + bufferOffset, sizeof(output.amount));
 			bufferOffset += sizeof(output.amount);
-			bufferOffset += CompactSizeDecode(blockBuffer + bufferOffset, MAX_COMPACT_SIZE_BYTES, (uint64_t *)&output.scriptPubKeySize);
+			bufferOffset += CompactSizeDecode(blockBuffer + bufferOffset, MAX_COMPACT_SIZE_BYTES, (U64 *)&output.scriptPubKeySize);
 			output.scriptPubKey = (U8 *)malloc(sizeof(U8) * output.scriptPubKeySize);
 			memcpy(output.scriptPubKey, blockBuffer + bufferOffset, output.scriptPubKeySize);
 			bufferOffset += output.scriptPubKeySize;
@@ -91,13 +91,13 @@ Transaction *ReadTxn(const U8 *blockBuffer, U16 txCount)
 			for (U16 witnessIndex = 0; witnessIndex < transaction.inputCount; witnessIndex++)
 			{
 				Witness witness;
-				bufferOffset += CompactSizeDecode(blockBuffer + bufferOffset, MAX_COMPACT_SIZE_BYTES, (uint64_t *)&witness.stackItemsCount);
+				bufferOffset += CompactSizeDecode(blockBuffer + bufferOffset, MAX_COMPACT_SIZE_BYTES, (U64 *)&witness.stackItemsCount);
 				witness.stackItems = (StackItem *)malloc(sizeof(StackItem) * witness.stackItemsCount);
 				for (U16 stackItemIndex = 0; stackItemIndex < witness.stackItemsCount; stackItemIndex++)
 				{
 					StackItem stackItem;
 
-					bufferOffset += CompactSizeDecode(blockBuffer + bufferOffset, MAX_COMPACT_SIZE_BYTES, (uint64_t *)&stackItem.size);
+					bufferOffset += CompactSizeDecode(blockBuffer + bufferOffset, MAX_COMPACT_SIZE_BYTES, (U64 *)&stackItem.size);
 					stackItem.item = (U8 *)malloc(sizeof(U8) * stackItem.size);
 					memcpy(stackItem.item, blockBuffer + bufferOffset, stackItem.size);
 					bufferOffset += stackItem.size;
@@ -143,6 +143,8 @@ void CloseLRUFile(void)
 	openFiles[lruIndex].fileInfo = NULL;  // Remove the entry from the cache
 }
 
+
+// WARN: Imagine keeping a cache of open files, just to prevent some open/close calls, but still calling malloc 1000 times - like a fucking retard.
 FILE* OpenFile(FileInfo *fileInfo)
 {
 	// Check if the file is already open in FileInfo itself
@@ -270,7 +272,7 @@ Block ReadBlockFromBlkDatFile(FileInfo *fileInfo, size_t offset)
 	block.transactions = ReadTxn(blockBuffer + bufferOffset, block.txCount);
 
 	DoubleSHA256(blockHeaderBuffer, BLOCKHEADER_SIZE, block.hash);
-	free(blockBuffer);
+	free(blockBuffer);		// WARN: DUUUUUUH??? Let's use some kind of local allocator.
 	return block;
 }
 

@@ -105,9 +105,12 @@ void ParseCoreDatadir(char *path)
 		fprintf(stderr, "[Error]: Could not find a valid Bitcoin datadir.\n");
 		exit(1);
 	}
+	else
+	{
+		printf("Couldnt open %s - fallback to %s\n", path, gEnv.dataDir);
+	}
 
-	// Set global environment
-	strncpy(gEnv.dataDir, datadir, MAX_PATH_LENGTH);
+	// Set global environment strncpy(gEnv.dataDir, datadir, MAX_PATH_LENGTH);
 	snprintf(gEnv.blocksDir, sizeof(gEnv.blocksDir), "%sblocks/", datadir);
 	snprintf(gEnv.indexesDir, sizeof(gEnv.indexesDir), "%sindexes/", datadir);
 
@@ -142,3 +145,4 @@ void ParseCoreDatadir(char *path)
 		}
 	}
 }
+

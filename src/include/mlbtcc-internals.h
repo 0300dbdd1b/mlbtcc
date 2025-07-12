@@ -9,6 +9,13 @@
 #define SET_BIT(value, bit) ((value) |= (1ULL << (bit)))
 #define CLEAR_BIT(value, bit) ((value) &= ~(1ULL << (bit)))
 
+typedef enum MLBTCC_RETURN_CODES
+{
+	MAIN_DATADIR_FOUND,
+	MAIN_DATADIR_NOT_FOUND,
+
+} MLBTCC_RETURN_CODES;
+
 typedef enum MLBTCC_STATUS
 {
 	HAS_DATADIR				= 0,

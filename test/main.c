@@ -34,7 +34,7 @@ int main(void)
 
 	printf("Indexing Done in %llu ms (%llu cycles)\n", t1 - t0, c1 - c0);
 
-	Block b = GetBlock(0);
+	Block b = GetBlock(100);
 	PrintBlock(&b, stdout);
 
 	uint64_t t2 = GetTimeMs();

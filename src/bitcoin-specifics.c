@@ -301,25 +301,29 @@ void PrintBlockIndexRecord(const BlockIndexRecord *record)
 
 
 // Initializes BlockHeader with default values
-void InitBlockHeader(BlockHeader *header) {
+void InitBlockHeader(BlockHeader *header)
+{
     memset(header, 0, sizeof(BlockHeader));  // Set everything to zero
     header->version = 0;  // You can assign meaningful default values
 }
 
 // Initializes Input and sets pointers to NULL
-void InitInput(Input *input) {
+void InitInput(Input *input)
+{
     memset(input, 0, sizeof(Input));  // Set everything to zero
     input->scriptSig = NULL;  // Initialize pointer to NULL
 }
 
 // Initializes Output and sets pointers to NULL
-void InitOutput(Output *output) {
+void InitOutput(Output *output)
+{
     memset(output, 0, sizeof(Output));  // Set everything to zero
     output->scriptPubKey = NULL;  // Initialize pointer to NULL
 }
 
 // Initializes StackItem and sets pointers to NULL
-void InitStackItem(StackItem *item) {
+void InitStackItem(StackItem *item)
+{
     item->size = 0;
     item->item = NULL;  // Initialize pointer to NULL
 }
@@ -331,16 +335,17 @@ void InitWitness(Witness *witness) {
 }
 
 // Initializes Transaction and sets pointers to NULL
-void InitTransaction(Transaction *tx) {
+void InitTransaction(Transaction *tx)
+{
     memset(tx, 0, sizeof(Transaction));  // Set everything to zero
-    tx->inputs = NULL;  // Initialize pointer to NULL
-    tx->outputs = NULL;  // Initialize pointer to NULL
-    tx->witnesses = NULL;  // Initialize pointer to NULL
+    tx->inputs = NULL;		// Initialize pointer to NULL
+    tx->outputs = NULL;		// Initialize pointer to NULL
+    tx->witnesses = NULL;	// Initialize pointer to NULL
 }
 
 // Initializes Block and sets pointers to NULL
 void InitBlock(Block *block) {
-    memset(block, 0, sizeof(Block));  // Set everything to zero
-    InitBlockHeader(&block->header);  // Initialize the header
-    block->transactions = NULL;  // Initialize pointer to NULL
+    memset(block, 0, sizeof(Block));	// Set everything to zero
+    InitBlockHeader(&block->header);	// Initialize the header
+    block->transactions = NULL;			// Initialize pointer to NULL
 }
